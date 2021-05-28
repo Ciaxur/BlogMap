@@ -7,22 +7,26 @@ export interface IRootStore {
     backend: string,
 
     // Actions
-    setBackendUri: (uri: string) => void,
+    setBackendUri: (state: IRootStore, uri: string) => void,
   },
   
   // Database Store & Cache
   db: {
+    // State of Syncing Data with Remote DB
+    synced: boolean,
+    lastSynced: Date | null,
+
     papers: { [paperId: string]: IPaper },
     authors: { [authorId: string]: IAuthor },
 
     // Actions
-    addPaper: (newPaper: IPaper)  => Promise<IPaper>,
-    modPaper: (paper: IPaper)  => Promise<IPaper>,
-    remPaper: (paper: IPaper) => Promise<IPaper>,
+    addPaper: (state: IRootStore, newPaper: IPaper)  => Promise<IPaper>,
+    modPaper: (state: IRootStore, paper: IPaper)  => Promise<IPaper>,
+    remPaper: (state: IRootStore, paper: IPaper) => Promise<IPaper>,
     
-    addAuthor: (newAuthor: IAuthor) => Promise<IAuthor>,
-    modAuthor: (author: IAuthor)  => Promise<IAuthor>,
-    remAuthor: (author: IAuthor) => Promise<IAuthor>,
+    addAuthor: (state: IRootStore, newAuthor: IAuthor) => Promise<IAuthor>,
+    modAuthor: (state: IRootStore, author: IAuthor)  => Promise<IAuthor>,
+    remAuthor: (state: IRootStore, author: IAuthor) => Promise<IAuthor>,
   },
 }
 
@@ -36,6 +40,9 @@ export const DefaultRootContext: IRootStore = {
   },
   
   db: {
+    synced: false,
+    lastSynced: null,
+    
     papers: {},
     authors: {},
 

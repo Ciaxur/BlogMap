@@ -9,8 +9,12 @@ interface DatabaseOptions {
 }
 interface IAuthorDb extends DatabaseOptions, IAuthor {}
 interface IPaperDb extends DatabaseOptions, IPaper {}
+interface IQueryResponse<T> {
+  data: T[],
+  length: number,
+}
 
 // Source of Truth, if import needs to be a General Database
 export type { IPaper, IPaperType } from './Paper.model';
 export type { IAuthor } from './Author.model';
-export type { IAuthorDb, IPaperDb };
+export type { IAuthorDb, IPaperDb, IQueryResponse };
