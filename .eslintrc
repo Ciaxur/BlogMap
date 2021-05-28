@@ -24,6 +24,7 @@
     "semi": ["error", "always"],
     "quotes": ["error", "single"],
     "array-bracket-spacing": ["error", "always"],
-    "comma-dangle": ["error", "always-multiline"]
+    "comma-dangle": ["error", "always-multiline"],
+    "no-case-declarations": "off"
   }
 }
