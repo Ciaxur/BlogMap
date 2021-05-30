@@ -5,6 +5,6 @@ export interface IPaper {
   body:       string,
   type:       IPaperType,
   author:     string,
-  category:   string,
+  category?:  string,
   tags:       string[],
 }

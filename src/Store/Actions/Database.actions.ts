@@ -59,9 +59,7 @@ export function populateDatabaseStore(store: IRootStore, dispatch: RootStoreDisp
   ]);
 }
 
-export async function addAuthor(author: IAuthor, store: IRootStore, dispatch: RootStoreDispatch): Promise<IAuthor> {
-  console.log('AddAuthor:', store.uri);
-  
+export async function addAuthor(author: IAuthor, store: IRootStore, dispatch: RootStoreDispatch): Promise<IAuthorDb> {
   // Post Request to Add new Author
   return axios.post(`${store.uri.backend}/api/v0/author`, author)
     .then(res => res.data)
@@ -70,9 +68,7 @@ export async function addAuthor(author: IAuthor, store: IRootStore, dispatch: Ro
       dispatch({ type: 'ADD_AUTHOR', data: data.data });
       return data.data;
     })
-    .catch(err => {
-      console.log(err.response);
-    });
+    .catch(err => Promise.reject(err.response));
 }
 
 // TODO: Remove from Database
@@ -92,9 +88,7 @@ export async function modAuthor(author: IAuthor, store: IRootStore, dispatch: Ro
   return Promise.resolve(author);
 }
 
-export async function addPaper(paper: IPaper, store: IRootStore, dispatch: RootStoreDispatch): Promise<IPaper> {
-  console.log('AddPaper:', store.uri);
-  
+export async function addPaper(paper: IPaper, store: IRootStore, dispatch: RootStoreDispatch): Promise<IPaperDb> {
   // Post Request to Add new Paper
   return axios.post(`${store.uri.backend}/api/v0/paper`, paper)
     .then(res => res.data)
@@ -103,7 +97,7 @@ export async function addPaper(paper: IPaper, store: IRootStore, dispatch: RootS
       dispatch({ type: 'ADD_PAPER', data: data.data });
       return data.data;
     })
-    .catch(err => err.response);
+    .catch(err => Promise.reject(err.response) as any);
 }
 // TODO: Remove from Database
 export async function remPaper(paper: IPaper, store: IRootStore, dispatch: RootStoreDispatch): Promise<IPaper> {

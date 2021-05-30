@@ -4,6 +4,13 @@ import { BreadcumbLink } from '../../Components/BreadcrumbNav';
 import { RootContext } from '../../Store/RootStore';
 import ReactMarkdown from 'react-markdown';
 import { IAuthorDb, IPaperDb } from '../../Database';
+import { makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles({
+  root: {
+    textAlign: 'left',
+  },
+});
 
 // Overrides Author to be of type IAuthor
 interface IPaperList extends Omit<IPaperDb, 'author'> {
@@ -18,10 +25,11 @@ interface Props {
 }
 
 export default function Page(props: Props): JSX.Element {
+  const styles = useStyles();
+  
   // ROOT STORE
   const rootStore = useContext(RootContext);
   const { papers, authors } = rootStore.db;
-
 
   // ROUTER PARAMS
   const { id } = props.RouterProps.match.params;
@@ -45,8 +53,8 @@ export default function Page(props: Props): JSX.Element {
   }, [ id ]);
   
   return (
-    <div>
-      <ReactMarkdown skipHtml>
+    <div className={styles.root}>
+      <ReactMarkdown skipHtml rawSourcePos>
         {paper.body}
       </ReactMarkdown>
     </div>

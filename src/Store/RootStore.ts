@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { IAuthor, IPaper } from '../Database';
+import { IAuthor, IAuthorDb, IPaper, IPaperDb } from '../Database';
 
 export interface IRootStore {
   // Uris
@@ -20,11 +20,11 @@ export interface IRootStore {
     authors: { [authorId: string]: IAuthor },
 
     // Actions
-    addPaper: (state: IRootStore, newPaper: IPaper)  => Promise<IPaper>,
+    addPaper: (state: IRootStore, newPaper: IPaper)  => Promise<IPaperDb>,
     modPaper: (state: IRootStore, paper: IPaper)  => Promise<IPaper>,
     remPaper: (state: IRootStore, paper: IPaper) => Promise<IPaper>,
     
-    addAuthor: (state: IRootStore, newAuthor: IAuthor) => Promise<IAuthor>,
+    addAuthor: (state: IRootStore, newAuthor: IAuthor) => Promise<IAuthorDb>,
     modAuthor: (state: IRootStore, author: IAuthor)  => Promise<IAuthor>,
     remAuthor: (state: IRootStore, author: IAuthor) => Promise<IAuthor>,
   },
