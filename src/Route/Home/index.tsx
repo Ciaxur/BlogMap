@@ -19,6 +19,14 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     alignItems: 'flex-start',
   },
+  paperEntryContianer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  whitespace: {
+    width: '10px',
+    opacity: 0,
+  },
 });
 
 
@@ -71,7 +79,6 @@ export default function Home(props: Props): JSX.Element {
 
   // METHODS
   const toggleNewPage = (message?: string) => {
-    console.log('Message', message);
     setState({
       ...state,
       isAddNewPage: !state.isAddNewPage,
@@ -112,6 +119,10 @@ export default function Home(props: Props): JSX.Element {
       snackbarStr: '',
     });
   };
+
+  const parseDate = (date: string | Date): string => {
+    return new Date(date).toDateString();
+  };
   
   return(
     <div className={styles.root}>
@@ -121,8 +132,10 @@ export default function Home(props: Props): JSX.Element {
       </Button>
       
       {paperList.map(val => (
-        <Link to={`/page/${val._id}`} key={val._id}>
+        <Link className={styles.paperEntryContianer} to={`/page/${val._id}`} key={val._id}>
           <h3>{val.title}</h3>
+          <hr className={styles.whitespace} />
+          <em>( {parseDate(val.createdAt)} )</em>
         </Link>
       ))}
 
