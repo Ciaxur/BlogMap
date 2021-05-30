@@ -13,6 +13,11 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     textAlign: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
   },
   icon: {
     marginRight: theme.spacing(0.5),
@@ -36,10 +41,7 @@ export function RenderBreadcrumbs(props: Props): JSX.Element {
   const { links } = props;
   
   return(
-    <Breadcrumbs style={{
-      display: 'flex',
-      justifyContent: 'center',
-    }}>
+    <Breadcrumbs className={styles.container}>
       <Link to='/' className={styles.link}>
         <HomeIcon className={styles.icon} />
         Home
