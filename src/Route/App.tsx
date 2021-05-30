@@ -5,7 +5,9 @@ import {
   Route,
 } from 'react-router-dom';
 import { 
+  createMuiTheme,
   makeStyles,
+  ThemeProvider,
 } from '@material-ui/core';
 
 // COMPONENTS
@@ -20,7 +22,7 @@ import { rootReducer } from '../Store/Reducers/RootReducer';
 import Page from './Page';
 import Home from './Home';
 
-
+// THEMING
 const useStyles = makeStyles(theme => ({
   root: {
     padding: '30px 20vw',
@@ -42,6 +44,24 @@ const useStyles = makeStyles(theme => ({
     height: 20,
   },
 }));
+
+const mainTheme = createMuiTheme({
+  typography: {
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      'Helvetica',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
+  },
+});
 
 
 function App(): JSX.Element {
@@ -97,29 +117,31 @@ function App(): JSX.Element {
   };
   
   return (
-    <RootContext.Provider value={rootStoreState}>
-      <div className={styles.root}>
-        <Router>
-          <RenderBreadcrumbs links={breadState} />
-          <hr className={styles.lineBreak} />
+    <ThemeProvider theme={mainTheme}>
+      <RootContext.Provider value={rootStoreState}>
+        <div className={styles.root}>
+          <Router>
+            <RenderBreadcrumbs links={breadState} />
+            <hr className={styles.lineBreak} />
 
-          <Switch>
-            <Route exact path='/' render={(props) => (
-              <Home
-                RouterProps={props}
-                breadcrumbUpdate={link => setLinkDepth(0, link)}
-              />
-            )} />
-            <Route path='/page/:id' render={(props) => (
-              <Page
-                RouterProps={props}
-                breadcrumbUpdate={link => setLinkDepth(1, link)}
-              />
-            )} />
-          </Switch>
-        </Router>
-      </div>
-    </RootContext.Provider>
+            <Switch>
+              <Route exact path='/' render={(props) => (
+                <Home
+                  RouterProps={props}
+                  breadcrumbUpdate={link => setLinkDepth(0, link)}
+                />
+              )} />
+              <Route path='/page/:id' render={(props) => (
+                <Page
+                  RouterProps={props}
+                  breadcrumbUpdate={link => setLinkDepth(1, link)}
+                />
+              )} />
+            </Switch>
+          </Router>
+        </div>
+      </RootContext.Provider>
+    </ThemeProvider>
   );
 }
 
