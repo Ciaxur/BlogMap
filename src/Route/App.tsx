@@ -1,16 +1,48 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+} from 'react-router-dom';
+import { 
+  makeStyles,
+} from '@material-ui/core';
+
+// COMPONENTS
+import { BreadcumbLink, RenderBreadcrumbs } from '../Components/BreadcrumbNav';
 
 // CONTEXT STORE
 import { RootContext, DefaultRootContext } from '../Store/RootStore';
 import * as DbActions from '../Store/Actions/Database.actions';
 import { rootReducer } from '../Store/Reducers/RootReducer';
 
-const useStyles = makeStyles({
+// ROUTES
+import Page from './Page';
+import Home from './Home';
+
+
+const useStyles = makeStyles(theme => ({
   root: {
+    padding: '30px 20vw',
     textAlign: 'center',
   },
-});
+  lineBreak: {
+    borderTop: '#B3B3B3 1px solid',
+    width: '100%',
+    opacity: 0.2,
+  },
+  link: {
+    display: 'flex',
+    textAlign: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginRight: theme.spacing(0.5),
+    width: 20,
+    height: 20,
+  },
+}));
+
 
 function App(): JSX.Element {
   const styles = useStyles();
@@ -18,6 +50,9 @@ function App(): JSX.Element {
   // Initial Store State
   const [ rootStoreState, rootStoreDispatch ] = React.useReducer(rootReducer, DefaultRootContext);
 
+  // Breadcrumb State
+  const [ breadState, setBreadState ] = React.useState<BreadcumbLink[]>([]);
+  
   /** Init Root Store with Actions on App Mount */
   React.useEffect(() => {
     rootStoreDispatch({
@@ -49,12 +84,40 @@ function App(): JSX.Element {
       DbActions.populateDatabaseStore(rootStoreState, rootStoreDispatch);
     }
   }, [ rootStoreState ]);
-  
 
+
+  // METHODS
+  const setLinkDepth = (index: number, link: BreadcumbLink): void => {
+    // Root Depth
+    if (index === 0)
+      setBreadState([]);
+    // Append Value
+    else
+      setBreadState(breadState.slice(0, index).concat(link));
+  };
+  
   return (
     <RootContext.Provider value={rootStoreState}>
       <div className={styles.root}>
-        <h1>BlogMap</h1>
+        <Router>
+          <RenderBreadcrumbs links={breadState} />
+          <hr className={styles.lineBreak} />
+
+          <Switch>
+            <Route exact path='/' render={(props) => (
+              <Home
+                RouterProps={props}
+                breadcrumbUpdate={link => setLinkDepth(0, link)}
+              />
+            )} />
+            <Route path='/page/:id' render={(props) => (
+              <Page
+                RouterProps={props}
+                breadcrumbUpdate={link => setLinkDepth(1, link)}
+              />
+            )} />
+          </Switch>
+        </Router>
       </div>
     </RootContext.Provider>
   );
