@@ -131,13 +131,15 @@ export default function Home(props: Props): JSX.Element {
         <PlusIcon /> Add Page
       </Button>
       
-      {paperList.map(val => (
-        <Link className={styles.paperEntryContianer} to={`/page/${val._id}`} key={val._id}>
-          <h3>{val.title}</h3>
-          <hr className={styles.whitespace} />
-          <em>( {parseDate(val.createdAt)} )</em>
-        </Link>
-      ))}
+      {paperList
+        .sort((a, b) => (new Date(b.createdAt).getTime()) - (new Date(a.createdAt).getTime()))
+        .map(val => (
+          <Link className={styles.paperEntryContianer} to={`/page/${val._id}`} key={val._id}>
+            <h3>{val.title}</h3>
+            <hr className={styles.whitespace} />
+            <em>( {parseDate(val.createdAt)} )</em>
+          </Link>
+        ))}
 
       {/* MARKDOWN EDITOR DIALOG */}
       {<MarkdownEditor 
