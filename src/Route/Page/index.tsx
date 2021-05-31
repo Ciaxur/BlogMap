@@ -2,7 +2,21 @@ import React, { useContext } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { BreadcumbLink } from '../../Components/BreadcrumbNav';
 import { RootContext } from '../../Store/RootStore';
+
+// UTILITIES & SECURITY
+import sanitizeHTML, {
+  defaults as sanitizeHtmlDefaults,
+} from 'sanitize-html';
+
+// REACT MARKDOWN + PLUGINS
 import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm';
+import rehyperaw from 'rehype-raw';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import gmogi from 'remark-gemoji';
+
+
 import { IAuthorDb, IPaper, IPaperDb } from '../../Database';
 import { IconButton, makeStyles, Menu, MenuItem, Snackbar, Typography } from '@material-ui/core';
 import { MoreVertOutlined as MenuIcon } from '@material-ui/icons';
@@ -60,7 +74,7 @@ export default function Page(props: Props): JSX.Element {
   const { id } = props.RouterProps.match.params;
   const { location } = props.RouterProps;
 
-  // MEMOIZED PAGE
+  // MEMOIZED PAGE & MARKDOWN CONTENT
   const [ paper, author ]: [IPaperList | null, IAuthorDb | null ] = React.useMemo(() => {
     // Not found
     if (!papers[id]) {
@@ -79,6 +93,25 @@ export default function Page(props: Props): JSX.Element {
       _id: papers[id].author,
     } as IAuthorDb ];
   }, [ papers, authors ]);
+
+  const mdStr: string = React.useMemo(() => (
+    paper
+      ? sanitizeHTML(paper.body, {
+        allowedAttributes: {
+          ...sanitizeHtmlDefaults.allowedAttributes,
+          a: [ 'href', 'name', 'target' ],
+          p: [ 'align' ],
+          img: [ 'src' ],
+          h1: [ 'align' ],
+          h2: [ 'align' ],
+          h3: [ 'align' ],
+          h4: [ 'align' ],
+          h5: [ 'align' ],
+          h6: [ 'align' ],
+        },
+      })
+      : ''
+  ), [ paper ]);
 
   // UPDATE ID BREADCRUMB
   React.useEffect(() => {
@@ -207,8 +240,8 @@ export default function Page(props: Props): JSX.Element {
             {renderMenu()}<em>by {author.name} on {paper.createdAt}</em>
           </Typography>
 
-          <ReactMarkdown skipHtml rawSourcePos>
-            {paper.body}
+          <ReactMarkdown remarkPlugins={[ gfm, gmogi ]} rehypePlugins={[ rehyperaw ]} rawSourcePos >
+            {mdStr}
           </ReactMarkdown>
 
           {/* PAPER MODS */}
