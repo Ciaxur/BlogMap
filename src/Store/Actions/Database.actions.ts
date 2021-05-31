@@ -71,21 +71,34 @@ export async function addAuthor(author: IAuthor, store: IRootStore, dispatch: Ro
     .catch(err => Promise.reject(err.response));
 }
 
-// TODO: Remove from Database
 export async function remAuthor(author: IAuthor, store: IRootStore, dispatch: RootStoreDispatch): Promise<IAuthor> {
+  const { _id } = author as IAuthorDb;
+
   // Remove from Store
   dispatch({ type: 'REM_AUTHOR', data: author });
 
-  console.log('TODO: Implement me on Backend');
-  return Promise.resolve(author);
+  return axios.delete(`${store.uri.backend}/api/v0/author/${_id}`)
+    .then(res => res.data)
+    .then((data: IQueryResponse<IAuthorDb>) => {
+      return data.data;
+    })
+    .catch(err => Promise.reject(err.response) as any);
 }
-// TODO: Patch on Database
+
 export async function modAuthor(author: IAuthor, store: IRootStore, dispatch: RootStoreDispatch): Promise<IAuthor> {
+  const { _id } = author as IAuthorDb;
+  
   // Remove from Store
   dispatch({ type: 'MOD_AUTHOR', data: author });
 
-  console.log('TODO: Implement me on Backend');
-  return Promise.resolve(author);
+  return axios.patch(`${store.uri.backend}/api/v0/author/${_id}`, {
+    name: author.name,
+  } as IAuthor)
+    .then(res => res.data)
+    .then((data: IQueryResponse<IAuthorDb>) => {
+      return data.data;
+    })
+    .catch(err => Promise.reject(err.response) as any);
 }
 
 export async function addPaper(paper: IPaper, store: IRootStore, dispatch: RootStoreDispatch): Promise<IPaperDb> {
@@ -99,19 +112,38 @@ export async function addPaper(paper: IPaper, store: IRootStore, dispatch: RootS
     })
     .catch(err => Promise.reject(err.response) as any);
 }
-// TODO: Remove from Database
+
 export async function remPaper(paper: IPaper, store: IRootStore, dispatch: RootStoreDispatch): Promise<IPaper> {
+  const { _id } = paper as IPaperDb;
+  
   // Remove from Store
   dispatch({ type: 'REM_PAPER', data: paper });
 
-  console.log('TODO: Implement me on Backend');
-  return Promise.resolve(paper);
+  return axios.delete(`${store.uri.backend}/api/v0/paper/${_id}`)
+    .then(res => res.data)
+    .then((data: IQueryResponse<IPaperDb>) => {
+      return data.data;
+    })
+    .catch(err => Promise.reject(err.response) as any);
 }
-// TODO: Patch on Database
+
 export async function modPaper(paper: IPaper, store: IRootStore, dispatch: RootStoreDispatch): Promise<IPaper> {
+  const { _id } = paper as IPaperDb;
+
   // Remove from Store
   dispatch({ type: 'MOD_PAPER', data: paper });
 
-  console.log('TODO: Implement me on Backend');
-  return Promise.resolve(paper);
+  return axios.patch(`${store.uri.backend}/api/v0/paper/${_id}`, {
+    author: paper.author,
+    body: paper.body,
+    tags: paper.tags,
+    category: paper.category || undefined,
+    title: paper.title,
+    type: paper.type,
+  } as IPaper)
+    .then(res => res.data)
+    .then((data: IQueryResponse<IPaperDb>) => {
+      return data.data;
+    })
+    .catch(err => Promise.reject(err.response) as any);
 }
