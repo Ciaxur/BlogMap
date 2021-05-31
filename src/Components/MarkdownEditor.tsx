@@ -60,6 +60,7 @@ interface Props {
   isOpen: boolean,
   onClose: (message?: string) => void,
   onSubmit: (page: IPaper) => Promise<IPaper>,
+  editPaper?: IPaper,
 }
 
 interface State {
@@ -80,14 +81,15 @@ interface State {
 
 export default function MarkdownEditor(props: Props): JSX.Element {
   const styles = useStyles();
+  const { editPaper } = props;
   const [ state, setState ] = React.useState<State>({
-    title: 'Untitled Page',
+    title: editPaper ? editPaper.title : 'Untitled Page',
     titleError: DefaultInputError,
-    body: '',
+    body: editPaper ? editPaper.body : '',
     bodyError: DefaultInputError,
-    author: '',
+    author: editPaper ? editPaper.author : '',
     authorError: DefaultInputError,
-    category: '',
+    category: editPaper ? editPaper.category || '' : '',
     generalError: DefaultInputError,
   });
 
@@ -125,6 +127,7 @@ export default function MarkdownEditor(props: Props): JSX.Element {
     const {
       author, body, title, category,
     } = state;
+    const { editPaper } = props;
     
     // Reset Error State
     setState({
@@ -156,9 +159,9 @@ export default function MarkdownEditor(props: Props): JSX.Element {
       tags: [],                     // TODO:
       type: 'Article',              // TODO:
     })
-      .then(newPaper => props.onClose(`New Paper '${newPaper.title}' Added`))
+      .then(newPaper => props.onClose(`New Paper '${newPaper.title}' ${editPaper ? 'Modified' : 'Added'}`))
       .catch(err => {
-        console.log('Add Paper Error: ', err);
+        console.log(`${editPaper ? 'Edit' : 'Add'} Paper Error: `, err);
         setState({
           ...state,
           generalError: {

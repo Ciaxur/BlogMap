@@ -4,8 +4,10 @@ import { BreadcumbLink } from '../../Components/BreadcrumbNav';
 import { RootContext } from '../../Store/RootStore';
 import ReactMarkdown from 'react-markdown';
 import { IAuthorDb, IPaper, IPaperDb } from '../../Database';
+import { IconButton, makeStyles, Menu, MenuItem, Snackbar, Typography } from '@material-ui/core';
 import { MoreVertOutlined as MenuIcon } from '@material-ui/icons';
 import ConfirmDialog from '../../Components/ConfirmDialog';
+import MarkdownEditor from '../../Components/MarkdownEditor';
 
 const useStyles = makeStyles({
   root: {
@@ -89,6 +91,18 @@ export default function Page(props: Props): JSX.Element {
     });
   }, [ id, papers ]);
 
+  // SNACKBAR STATE / METHODS
+  const [ snackbarState, setSnackbar ] = React.useState({
+    openSnackbar: false,
+    snackbarStr: '',
+  });
+  const closeSnackbar = () => {
+    setSnackbar({
+      openSnackbar: false,
+      snackbarStr: '',
+    });
+  };
+
   // MENU STATE / METHODS
   const [ menuState, setMenuState ] = React.useState<MenuState>({
     isOpen: false,
@@ -125,6 +139,26 @@ export default function Page(props: Props): JSX.Element {
     });
     rootStore.db.remPaper(rootStore, page as any);
   };
+  const onCloseEditor = (msg?: string) => {
+    if (msg) {
+      setSnackbar({
+        openSnackbar: true, snackbarStr: msg,
+      });
+    }
+    setModState({
+      ...modState,
+      isEdit: false,
+    });
+  };
+  const onEditSubmit = (page: IPaper): Promise<IPaper> => {
+    return rootStore.db.modPaper(rootStore, {
+      ...page,
+      author: author ? author._id : '',
+      _id: id,
+      createdAt: (papers[id] as IPaperDb).createdAt,
+      updatedAt: new Date(),
+    } as IPaperDb);
+  };
 
   
   // RENDER METHODS
@@ -144,6 +178,7 @@ export default function Page(props: Props): JSX.Element {
           onClose={closePageMenu}
         >
           <MenuItem onClick={() => {
+            setModState({ ...modState, isEdit: true });
             closePageMenu();
           }}>Edit</MenuItem>
           <MenuItem onClick={() => {
@@ -176,6 +211,17 @@ export default function Page(props: Props): JSX.Element {
             {paper.body}
           </ReactMarkdown>
 
+          {/* PAPER MODS */}
+          <MarkdownEditor
+            isOpen={modState.isEdit}
+            onClose={onCloseEditor}
+            onSubmit={onEditSubmit}
+            editPaper={{
+              ...paper,
+              author: author.name,    // NOTE: Pass Author as Name not ID
+            }}
+          />
+
           <ConfirmDialog
             detail='Removing this page is permanent and connot be undone'
             title={`Are you sure you want to Remove "${paper.title}"?`}
@@ -184,6 +230,17 @@ export default function Page(props: Props): JSX.Element {
             open={modState.openConfirm}
           />
         </>}
+
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        open={snackbarState.openSnackbar}
+        autoHideDuration={2500}
+        onClose={closeSnackbar}
+        message={snackbarState.snackbarStr}
+      />
     </div>
   );
 }
