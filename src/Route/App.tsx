@@ -113,7 +113,7 @@ function App(): JSX.Element {
       setBreadState([]);
     // Append Value
     else
-      setBreadState(breadState.slice(0, index).concat(link));
+      setBreadState(breadState.slice(0, index - 1).concat(link));
   };
   
   return (

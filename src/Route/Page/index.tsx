@@ -3,8 +3,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { BreadcumbLink } from '../../Components/BreadcrumbNav';
 import { RootContext } from '../../Store/RootStore';
 import ReactMarkdown from 'react-markdown';
-import { IAuthorDb, IPaperDb } from '../../Database';
-import { IconButton, makeStyles, Menu, MenuItem, Typography } from '@material-ui/core';
+import { IAuthorDb, IPaper, IPaperDb } from '../../Database';
 import { MoreVertOutlined as MenuIcon } from '@material-ui/icons';
 import ConfirmDialog from '../../Components/ConfirmDialog';
 
@@ -26,8 +25,7 @@ const useStyles = makeStyles({
 });
 
 // Overrides Author to be of type IAuthor
-interface IPaperList extends Omit<IPaperDb, 'author' | 'createdAt' | 'updatedAt'> {
-  author:     IAuthorDb,
+interface IPaperList extends Omit<IPaperDb, 'createdAt' | 'updatedAt'> {
   createdAt:  string,
   updatedAt:  string,
 }
@@ -61,22 +59,23 @@ export default function Page(props: Props): JSX.Element {
   const { location } = props.RouterProps;
 
   // MEMOIZED PAGE
-  const paper: IPaperList | null = React.useMemo(() => {
+  const [ paper, author ]: [IPaperList | null, IAuthorDb | null ] = React.useMemo(() => {
     // Not found
     if (!papers[id]) {
-      return null;
+      return [ null, null ];
     }
 
-    
     const createdAt = new Date((papers[id] as IPaperDb).createdAt);
     const updatedAt = new Date((papers[id] as IPaperDb).updatedAt);
 
-    return {
+    return [ {
       ...(papers[id] as IPaperDb),
-      author: (authors[papers[id].author] as IAuthorDb),
       createdAt: `${createdAt.toLocaleDateString()} - ${createdAt.toLocaleTimeString()}`,
       updatedAt: `${updatedAt.toLocaleDateString()} - ${updatedAt.toLocaleTimeString()}`,
-    };
+    }, {
+      ...authors[papers[id].author],
+      _id: papers[id].author,
+    } as IAuthorDb ];
   }, [ papers, authors ]);
 
   // UPDATE ID BREADCRUMB
@@ -88,7 +87,7 @@ export default function Page(props: Props): JSX.Element {
       path: location.pathname,
       onPress: () => { return; }, // Do nothing
     });
-  }, [ id ]);
+  }, [ id, papers ]);
 
   // MENU STATE / METHODS
   const [ menuState, setMenuState ] = React.useState<MenuState>({
@@ -166,11 +165,11 @@ export default function Page(props: Props): JSX.Element {
   
   return (
     <div className={styles.root}>
-      {paper === null
+      {paper === null || author === null
         ? renderNotFound()
         : <>
           <Typography className={styles.metadata} variant='caption'>
-            {renderMenu()}<em>by {paper.author.name} on {paper.createdAt}</em>
+            {renderMenu()}<em>by {author.name} on {paper.createdAt}</em>
           </Typography>
 
           <ReactMarkdown skipHtml rawSourcePos>
