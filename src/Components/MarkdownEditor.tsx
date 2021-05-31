@@ -72,6 +72,8 @@ interface State {
   author:       string,
   authorError:  InputError,
 
+  category:     string,
+  
   generalError: InputError,
 }
 
@@ -85,6 +87,7 @@ export default function MarkdownEditor(props: Props): JSX.Element {
     bodyError: DefaultInputError,
     author: '',
     authorError: DefaultInputError,
+    category: '',
     generalError: DefaultInputError,
   });
 
@@ -107,9 +110,20 @@ export default function MarkdownEditor(props: Props): JSX.Element {
       author: val,
     });
   };
+  const setCatagoryValue = (val: string) => {
+    // Max 64 length
+    if (val.length > 64)
+      return;
+    
+    setState({
+      ...state,
+      category: val,
+    });
+  };
+  
   const onSubmit = () => {
     const {
-      author, body, title,
+      author, body, title, category,
     } = state;
     
     // Reset Error State
@@ -138,6 +152,7 @@ export default function MarkdownEditor(props: Props): JSX.Element {
       title,
       body,
       author,                       // NOTE: Author name to be looked up and mapped/created new ID
+      category: category ? category : undefined,
       tags: [],                     // TODO:
       type: 'Article',              // TODO:
     })
@@ -193,6 +208,16 @@ export default function MarkdownEditor(props: Props): JSX.Element {
           helperText={state.bodyError.isError && state.bodyError.errorStr}
         />
 
+        <TextField
+          placeholder='Catagory (Optional)'
+          style={{ marginTop: '15px', marginRight: '10px', alignSelf: 'flex-end' }}
+          value={state.category}
+          onChange={event => setCatagoryValue(event.target.value)}
+          inputProps={{
+            className: 'code',
+          }}
+        />
+        
         <TextField
           placeholder='Author'
           style={{ marginTop: '15px', alignSelf: 'flex-end' }}
