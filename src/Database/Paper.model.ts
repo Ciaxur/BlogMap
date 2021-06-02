@@ -1,5 +1,5 @@
-const PaperType = [ 'Block', 'Article', 'White-Paper' ] as const;
-export type IPaperType = typeof PaperType[number];
+export const PAPER_TYPE = [ 'Article', 'Block', 'White-Paper' ] as const;
+export type IPaperType = typeof PAPER_TYPE[number];
 export interface IPaper {
   title:      string,
   body:       string,

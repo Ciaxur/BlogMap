@@ -3,13 +3,14 @@ import {
   Button,
   createMuiTheme, makeStyles, ThemeProvider,
   Dialog, DialogActions, DialogContent, DialogTitle,
-  TextField, Typography,
+  TextField, Typography, Select, MenuItem,
 } from '@material-ui/core';
 import {
   Autocomplete,
 } from '@material-ui/lab';
 
-import { IPaper } from '../Database';
+import { IPaper, IPaperType } from '../Database';
+import { PAPER_TYPE } from '../Database/Paper.model';
 import { RootContext } from '../Store/RootStore';
 
 // SCOPED STYLES
@@ -29,6 +30,10 @@ const useStyles = makeStyles({
   title: {
     fontSize: '24px',
     fontWeight: 'bold',
+  },
+  titleContainer: {
+    display: 'flex',
+    width: '100%',
   },
   contentInput: {
     fontWeight: 'bold',
@@ -85,6 +90,7 @@ interface State {
 
   category:     string,
   tags:         string[],   // Selected Tags
+  paperType:    IPaperType,
   
   generalError: InputError,
 }
@@ -104,6 +110,7 @@ export default function MarkdownEditor(props: Props): JSX.Element {
     category: editPaper ? editPaper.category || '' : '',
     generalError: DefaultInputError,
     tags: editPaper ? editPaper.tags : [],
+    paperType: editPaper ? editPaper.type : PAPER_TYPE[0],           // Default is first Index (Article)
   });
 
   // MEMOIZE AVAILABLE TAGS
@@ -144,7 +151,8 @@ export default function MarkdownEditor(props: Props): JSX.Element {
   
   const onSubmit = () => {
     const {
-      author, body, title, category, tags,
+      author, body, title, 
+      category, tags, paperType,
     } = state;
     const { editPaper } = props;
     
@@ -176,7 +184,7 @@ export default function MarkdownEditor(props: Props): JSX.Element {
       author,                       // NOTE: Author name to be looked up and mapped/created new ID
       category: category ? category : undefined,
       tags,
-      type: 'Article',              // TODO:
+      type: paperType,
     })
       .then(newPaper => props.onClose(`New Paper '${newPaper.title}' ${editPaper ? 'Modified' : 'Added'}`))
       .catch(err => {
@@ -198,19 +206,31 @@ export default function MarkdownEditor(props: Props): JSX.Element {
       open={props.isOpen}
       onClose={() => props.onClose()}
     >
-      <DialogTitle>
+      <DialogTitle >
         <ThemeProvider theme={inputOverrideTheme}>
-          <TextField
-            fullWidth
-            value={state.title}
-            onChange={event => setTitleValue(event.target.value)}
-            inputProps={{
-              className: `code ${styles.title}`,
-            }}
-            error={state.titleError.isError}
-            helperText={state.titleError.isError && state.titleError.errorStr}
-          />
+          <div className={styles.titleContainer}>
+            <TextField
+              fullWidth
+              value={state.title}
+              onChange={event => setTitleValue(event.target.value)}
+              inputProps={{
+                className: `code ${styles.title}`,
+              }}
+              error={state.titleError.isError}
+              helperText={state.titleError.isError && state.titleError.errorStr}
+            />
+
+            <Select
+              value={state.paperType}
+              onChange={(e) => setState({ ...state, paperType: e.target.value as IPaperType })}
+            >
+              {PAPER_TYPE.map(paperType => (
+                <MenuItem value={paperType}>{paperType}</MenuItem>
+              ))}
+            </Select>
+          </div>
         </ThemeProvider>
+
       </DialogTitle>
       <DialogContent className={styles.contentCtx}>
         <Typography className={styles.contentInput}>
