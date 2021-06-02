@@ -1,4 +1,4 @@
-import { Button, makeStyles, Snackbar } from '@material-ui/core';
+import { Button, Chip, makeStyles, Snackbar } from '@material-ui/core';
 import React from 'react';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { BreadcumbLink } from '../../Components/BreadcrumbNav';
@@ -19,9 +19,16 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     alignItems: 'flex-start',
   },
-  paperEntryContianer: {
+  paperEntry: {
     display: 'flex',
     alignItems: 'center',
+  },
+  paperEntryContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    width: '100%',
+    justifyContent: 'space-between',
   },
   whitespace: {
     width: '10px',
@@ -133,13 +140,18 @@ export default function Home(props: Props): JSX.Element {
       
       {paperList
         .sort((a, b) => (new Date(b.createdAt).getTime()) - (new Date(a.createdAt).getTime()))
-        .map(val => (
-          <Link className={styles.paperEntryContianer} to={`/page/${val._id}`} key={val._id}>
+        .map(val => (<div key={val._id} className={styles.paperEntryContainer}>
+          <Link className={styles.paperEntry} to={`/page/${val._id}`} key={val._id}>
             <h3>{val.title}</h3>
             <hr className={styles.whitespace} />
             <em>( {parseDate(val.createdAt)} )</em>
           </Link>
-        ))}
+          <div>
+            {val.tags.map((tag, idx) => (
+              <Chip key={idx} style={{ margin: 2 }} variant='outlined' label={tag} size='small' />
+            ))}
+          </div>
+        </div>))}
 
       {/* MARKDOWN EDITOR DIALOG */}
       {<MarkdownEditor 

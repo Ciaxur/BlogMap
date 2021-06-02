@@ -18,7 +18,7 @@ import gmogi from 'remark-gemoji';
 
 
 import { IAuthorDb, IPaper, IPaperDb } from '../../Database';
-import { IconButton, makeStyles, Menu, MenuItem, Snackbar, Typography } from '@material-ui/core';
+import { Chip, IconButton, makeStyles, Menu, MenuItem, Snackbar, Typography } from '@material-ui/core';
 import { MoreVertOutlined as MenuIcon } from '@material-ui/icons';
 import ConfirmDialog from '../../Components/ConfirmDialog';
 import MarkdownEditor from '../../Components/MarkdownEditor';
@@ -37,6 +37,11 @@ const useStyles = makeStyles({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  metadataContainer: {
+    display: 'flex',
+    alignItems: 'baseline',
+    justifyContent: 'flex-end',
   },
 });
 
@@ -236,9 +241,14 @@ export default function Page(props: Props): JSX.Element {
       {paper === null || author === null
         ? renderNotFound()
         : <>
-          <Typography className={styles.metadata} variant='caption'>
-            {renderMenu()}<em>by {author.name} on {paper.createdAt}</em>
-          </Typography>
+          <div className={styles.metadataContainer}>
+            {paper.tags.map((tag, idx) => (
+              <Chip key={idx} style={{ margin: 2 }} variant='outlined' size='small' label={tag} />
+            ))}
+            <Typography className={styles.metadata} variant='caption'>
+              {renderMenu()}<em>by {author.name} on {paper.createdAt}</em>
+            </Typography>
+          </div>
 
           <ReactMarkdown remarkPlugins={[ gfm, gmogi ]} rehypePlugins={[ rehyperaw ]} rawSourcePos >
             {mdStr}

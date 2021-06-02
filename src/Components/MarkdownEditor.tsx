@@ -1,14 +1,16 @@
 import React from 'react';
 import { 
   Button,
-  createMuiTheme,
+  createMuiTheme, makeStyles, ThemeProvider,
   Dialog, DialogActions, DialogContent, DialogTitle,
-  makeStyles,
-  TextField,
-  ThemeProvider,
-  Typography,
+  TextField, Typography,
 } from '@material-ui/core';
+import {
+  Autocomplete,
+} from '@material-ui/lab';
+
 import { IPaper } from '../Database';
+import { RootContext } from '../Store/RootStore';
 
 // SCOPED STYLES
 const useStyles = makeStyles({
@@ -30,6 +32,14 @@ const useStyles = makeStyles({
   },
   contentInput: {
     fontWeight: 'bold',
+  },
+  tagSelectMenu: {
+    width: '180px',
+  },
+  metadataInputContainer: {
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
   error: {
     color: '#F54F6D',
@@ -74,6 +84,7 @@ interface State {
   authorError:  InputError,
 
   category:     string,
+  tags:         string[],   // Selected Tags
   
   generalError: InputError,
 }
@@ -81,6 +92,7 @@ interface State {
 
 export default function MarkdownEditor(props: Props): JSX.Element {
   const styles = useStyles();
+  const { db } = React.useContext(RootContext);
   const { editPaper } = props;
   const [ state, setState ] = React.useState<State>({
     title: editPaper ? editPaper.title : 'Untitled Page',
@@ -91,7 +103,14 @@ export default function MarkdownEditor(props: Props): JSX.Element {
     authorError: DefaultInputError,
     category: editPaper ? editPaper.category || '' : '',
     generalError: DefaultInputError,
+    tags: editPaper ? editPaper.tags : [],
   });
+
+  // MEMOIZE AVAILABLE TAGS
+  const availTags: string[] = React.useMemo(() => (
+    Object.values(db.papers)
+      .reduce((acc, elt) => ([ ...acc, ...elt.tags ]), [] as string[])
+  ), [ db.papers ]);
 
   // METHODS
   const setInputValue = (val: string) => {
@@ -125,7 +144,7 @@ export default function MarkdownEditor(props: Props): JSX.Element {
   
   const onSubmit = () => {
     const {
-      author, body, title, category,
+      author, body, title, category, tags,
     } = state;
     const { editPaper } = props;
     
@@ -156,7 +175,7 @@ export default function MarkdownEditor(props: Props): JSX.Element {
       body,
       author,                       // NOTE: Author name to be looked up and mapped/created new ID
       category: category ? category : undefined,
-      tags: [],                     // TODO:
+      tags,
       type: 'Article',              // TODO:
     })
       .then(newPaper => props.onClose(`New Paper '${newPaper.title}' ${editPaper ? 'Modified' : 'Added'}`))
@@ -183,7 +202,6 @@ export default function MarkdownEditor(props: Props): JSX.Element {
         <ThemeProvider theme={inputOverrideTheme}>
           <TextField
             fullWidth
-            multiline
             value={state.title}
             onChange={event => setTitleValue(event.target.value)}
             inputProps={{
@@ -211,27 +229,46 @@ export default function MarkdownEditor(props: Props): JSX.Element {
           helperText={state.bodyError.isError && state.bodyError.errorStr}
         />
 
-        <TextField
-          placeholder='Catagory (Optional)'
-          style={{ marginTop: '15px', marginRight: '10px', alignSelf: 'flex-end' }}
-          value={state.category}
-          onChange={event => setCatagoryValue(event.target.value)}
-          inputProps={{
-            className: 'code',
-          }}
-        />
-        
-        <TextField
-          placeholder='Author'
-          style={{ marginTop: '15px', alignSelf: 'flex-end' }}
-          value={state.author}
-          onChange={event => setAuthorValue(event.target.value)}
-          inputProps={{
-            className: 'code',
-          }}
-          error={state.authorError.isError}
-          helperText={state.authorError.isError && state.authorError.errorStr}
-        />
+        {/* TAGS & CATEGORIES */}
+        <div className={styles.metadataInputContainer}>
+          <Autocomplete
+            className={styles.tagSelectMenu}
+            limitTags={2}
+            multiple
+            size='small'
+            value={state.tags}
+            onChange={(_, val) => setState({ ...state, tags: val })}
+            options={availTags}
+            getOptionLabel={(option) => option}
+            freeSolo
+            renderInput={(params) => (
+              <TextField {...params} variant='standard' label='Tags' placeholder='tag' />
+            )}
+          />
+
+          <TextField
+            placeholder='Category (Optional)'
+            style={{ marginTop: '15px', marginRight: '10px', alignSelf: 'flex-end' }}
+            value={state.category}
+            onChange={event => setCatagoryValue(event.target.value)}
+            inputProps={{
+              className: 'code',
+            }}
+          />
+
+          <TextField
+            placeholder='Author'
+            style={{ marginTop: '15px', alignSelf: 'flex-end' }}
+            value={state.author}
+            onChange={event => setAuthorValue(event.target.value)}
+            disabled={editPaper ? true : false}   // Cannot change if edit
+            inputProps={{
+              className: 'code',
+            }}
+            error={state.authorError.isError}
+            helperText={state.authorError.isError && state.authorError.errorStr}
+          />
+        </div>
       </DialogContent>
 
       <DialogContent>
