@@ -27,5 +27,21 @@
 
 4. (*Recommended*) Compiling the application to a static web app, simply run `npm run build`.
 
+## Screenshots 📷
+<p align='center'>
+  <strong>Home Page with multiple entries that are tagged and categorized</strong>
+  <img width='90%' src="misc/Home_Screenshot.png" />
+</p>
+
+<p align='center'>
+  <strong>Page filtering and search</strong>
+  <img width='90%' src="misc/Search_Screenshot.png" />
+</p>
+
+<p align='center'>
+  <strong>Page Content with rich metadata</strong>
+  <img width='90%' src="misc/Page_Screenshot.png" />
+</p>
+
 ## License 📔
 Licensed under the [MIT License](LICENSE).
