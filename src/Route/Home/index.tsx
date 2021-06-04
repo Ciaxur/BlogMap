@@ -22,6 +22,8 @@ const useStyles = makeStyles({
   pageActions: {
     display: 'flex',
     alignItems: 'center',
+    width: '100%',
+    justifyContent: 'flex-end',
   },
   paperEntry: {
     display: 'flex',
