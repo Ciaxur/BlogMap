@@ -245,6 +245,15 @@ export default function Page(props: Props): JSX.Element {
             {paper.tags.map((tag, idx) => (
               <Chip key={idx} style={{ margin: 2 }} variant='outlined' size='small' label={tag} />
             ))}
+            {(paper.category &&
+              <Chip
+                color='primary'
+                style={{ margin: 2 }}
+                variant='outlined'
+                size='small'
+                label={paper.category}
+              />
+            )}
             <Typography className={styles.metadata} variant='caption'>
               {renderMenu()}<em>by {author.name} on {paper.createdAt}</em>
             </Typography>

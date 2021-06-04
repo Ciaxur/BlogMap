@@ -219,6 +219,15 @@ export default function Home(props: Props): JSX.Element {
                 onClick={() => addTagFilter(tag)}
               />
             ))}
+            {(val.category &&
+              <Chip
+                color='primary'
+                style={{ margin: 2 }}
+                variant='outlined'
+                size='small'
+                label={val.category}
+              />
+            )}
           </div>
         </div>))}
 
