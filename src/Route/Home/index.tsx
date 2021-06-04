@@ -1,4 +1,4 @@
-import { Button, Chip, makeStyles, Snackbar } from '@material-ui/core';
+import { Button, Chip, makeStyles, Snackbar, TextField } from '@material-ui/core';
 import React from 'react';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { BreadcumbLink } from '../../Components/BreadcrumbNav';
@@ -23,7 +23,7 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     width: '100%',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
   },
   paperEntry: {
     display: 'flex',
@@ -52,6 +52,7 @@ interface Props {
 interface State {
   isAddNewPage: boolean,
   filterTags:   string[],
+  filterTitle:  string,
 
   openSnackbar: boolean,
   snackbarStr:  string,
@@ -62,6 +63,7 @@ export default function Home(props: Props): JSX.Element {
   const [ state, setState ] = React.useState<State>({
     isAddNewPage: false,
     filterTags: [],
+    filterTitle: '',
 
     openSnackbar: false,
     snackbarStr: '',
@@ -87,14 +89,18 @@ export default function Home(props: Props): JSX.Element {
   // MEMOIZED PAPER LIST
   const paperList: IPaperDb[] = React.useMemo(() => {
     return Object.values(papers as { [id: string]: IPaperDb })
-      .filter(val => state.filterTags.length
-        ? val.tags.some(tag => state.filterTags.includes(tag))  // filter by tags
-        : true,     // no filtering
+      .filter(val => (state.filterTags.length
+        ? val.tags.some(tag => state.filterTags.includes(tag))    // filter by tags
+        : true)       // no filtering
+        && (state.filterTitle
+          ? val.title.match(new RegExp(state.filterTitle, 'gi'))  // filter by title
+          : true      // no filtering)
+        ),
       )
       .map(val => ({
         ...val,
       }));
-  }, [ papers, state.filterTags ]);
+  }, [ papers, state.filterTags, state.filterTitle ]);
 
   // METHODS
   const toggleNewPage = (message?: string) => {
@@ -159,25 +165,39 @@ export default function Home(props: Props): JSX.Element {
       filterTags: state.filterTags.filter(elt => elt !== tag),
     });
   };
+
+  const filterByTitle = (pattern: string) => {
+    setState({
+      ...state,
+      filterTitle: pattern,
+    });
+  };
   
   return(
     <div className={styles.root}>
       <h2 style={{ alignSelf: 'center' }}>Blog Map</h2>
       <div className={styles.pageActions}>
-        {state.filterTags.map((tag, idx) => (
-          <Chip
-            key={idx}
-            style={{ margin: 2 }}
-            variant='outlined'
-            label={tag}
-            size='small'
-            color='primary'
-            onDelete={() => remTagFilter(tag)}
-          />
-        ))}
-        <Button onClick={() => toggleNewPage()}>
-          <PlusIcon /> Add Page
+        <TextField 
+          size='small'
+          placeholder='Search'
+          onChange={e => filterByTitle(e.target.value)}
+        />
+        <div>
+          {state.filterTags.map((tag, idx) => (
+            <Chip
+              key={idx}
+              style={{ margin: 2 }}
+              variant='outlined'
+              label={tag}
+              size='small'
+              color='primary'
+              onDelete={() => remTagFilter(tag)}
+            />
+          ))}
+          <Button onClick={() => toggleNewPage()}>
+            <PlusIcon /> Add Page
         </Button>
+        </div>
       </div>
       
       {paperList
