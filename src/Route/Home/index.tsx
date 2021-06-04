@@ -19,6 +19,10 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     alignItems: 'flex-start',
   },
+  pageActions: {
+    display: 'flex',
+    alignItems: 'center',
+  },
   paperEntry: {
     display: 'flex',
     alignItems: 'center',
@@ -45,6 +49,7 @@ interface Props {
 
 interface State {
   isAddNewPage: boolean,
+  filterTags:   string[],
 
   openSnackbar: boolean,
   snackbarStr:  string,
@@ -54,6 +59,7 @@ export default function Home(props: Props): JSX.Element {
   // HOOKS & HOME STATE
   const [ state, setState ] = React.useState<State>({
     isAddNewPage: false,
+    filterTags: [],
 
     openSnackbar: false,
     snackbarStr: '',
@@ -79,10 +85,14 @@ export default function Home(props: Props): JSX.Element {
   // MEMOIZED PAPER LIST
   const paperList: IPaperDb[] = React.useMemo(() => {
     return Object.values(papers as { [id: string]: IPaperDb })
+      .filter(val => state.filterTags.length
+        ? val.tags.some(tag => state.filterTags.includes(tag))  // filter by tags
+        : true,     // no filtering
+      )
       .map(val => ({
         ...val,
       }));
-  }, [ papers ]);
+  }, [ papers, state.filterTags ]);
 
   // METHODS
   const toggleNewPage = (message?: string) => {
@@ -130,13 +140,43 @@ export default function Home(props: Props): JSX.Element {
   const parseDate = (date: string | Date): string => {
     return new Date(date).toDateString();
   };
+
+  const addTagFilter = (tag: string) => {
+    if (state.filterTags.includes(tag))
+      return;
+    
+    setState({
+      ...state,
+      filterTags: state.filterTags.concat(tag),
+    });
+  };
+
+  const remTagFilter = (tag: string) => {
+    setState({
+      ...state,
+      filterTags: state.filterTags.filter(elt => elt !== tag),
+    });
+  };
   
   return(
     <div className={styles.root}>
       <h2 style={{ alignSelf: 'center' }}>Blog Map</h2>
-      <Button onClick={() => toggleNewPage()} style={{ alignSelf: 'flex-end' }}>
-        <PlusIcon /> Add Page
-      </Button>
+      <div className={styles.pageActions}>
+        {state.filterTags.map((tag, idx) => (
+          <Chip
+            key={idx}
+            style={{ margin: 2 }}
+            variant='outlined'
+            label={tag}
+            size='small'
+            color='primary'
+            onDelete={() => remTagFilter(tag)}
+          />
+        ))}
+        <Button onClick={() => toggleNewPage()}>
+          <PlusIcon /> Add Page
+        </Button>
+      </div>
       
       {paperList
         .sort((a, b) => (new Date(b.createdAt).getTime()) - (new Date(a.createdAt).getTime()))
@@ -148,7 +188,14 @@ export default function Home(props: Props): JSX.Element {
           </Link>
           <div>
             {val.tags.map((tag, idx) => (
-              <Chip key={idx} style={{ margin: 2 }} variant='outlined' label={tag} size='small' />
+              <Chip
+                key={idx}
+                style={{ margin: 2 }}
+                variant='outlined'
+                label={tag}
+                size='small'
+                onClick={() => addTagFilter(tag)}
+              />
             ))}
           </div>
         </div>))}
